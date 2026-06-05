@@ -2,48 +2,107 @@ import streamlit as st
 import pandas as pd
 
 from modules.database import (
-    init_db,
-    lire_mp,
-    ajouter_mp
+    charger_bibliotheque_complete,
+    ajouter_matiere_premiere
 )
 
 st.title("📚 Bibliothèque MP")
 
-init_db()
+df = charger_bibliotheque_complete()
 
-st.subheader("Ajouter une matière première")
+st.subheader("Recherche")
+
+recherche = st.text_input(
+    "Nom matière première"
+)
+
+if recherche:
+
+    df = df[
+        df["Matière première"]
+        .astype(str)
+        .str.contains(
+            recherche,
+            case=False,
+            na=False
+        )
+    ]
+
+st.dataframe(
+    df,
+    use_container_width=True
+)
+
+st.divider()
+
+st.subheader(
+    "Ajouter une matière première"
+)
 
 with st.form("ajout_mp"):
 
-    categorie = st.text_input("Catégorie")
-    sous_categorie = st.text_input("Sous-catégorie")
-    mp = st.text_input("Matière première")
+    categorie = st.text_input(
+        "Catégorie"
+    )
 
-    ms = st.number_input("MS", value=0.0)
-    ufl = st.number_input("UFL", value=0.0)
-    ufv = st.number_input("UFV", value=0.0)
+    sous_categorie = st.text_input(
+        "Sous-catégorie"
+    )
 
-    pdin = st.number_input("PDIN", value=0.0)
-    pdie = st.number_input("PDIE", value=0.0)
+    mp = st.text_input(
+        "Matière première"
+    )
 
-    mat = st.number_input("MAT", value=0.0)
+    ms = st.number_input("MS")
 
-    amidon = st.number_input("Amidon", value=0.0)
-    sucres = st.number_input("Sucres", value=0.0)
+    ufl = st.number_input("UFL")
 
-    ndf = st.number_input("NDF", value=0.0)
-    adf = st.number_input("ADF", value=0.0)
+    ufv = st.number_input("UFV")
 
-    mg = st.number_input("MG", value=0.0)
+    pdin = st.number_input("PDIN")
 
-    ca = st.number_input("Ca", value=0.0)
-    p = st.number_input("P", value=0.0)
-    k = st.number_input("K", value=0.0)
-    na = st.number_input("Na", value=0.0)
+    pdie = st.number_input("PDIE")
+
+    mat = st.number_input("MAT")
+
+    amidon = st.number_input(
+        "Amidon"
+    )
+
+    sucres = st.number_input(
+        "Sucres"
+    )
+
+    ndf = st.number_input(
+        "NDF"
+    )
+
+    adf = st.number_input(
+        "ADF"
+    )
+
+    mg = st.number_input(
+        "MG"
+    )
+
+    ca = st.number_input(
+        "Ca"
+    )
+
+    p = st.number_input(
+        "P"
+    )
+
+    k = st.number_input(
+        "K"
+    )
+
+    na = st.number_input(
+        "Na"
+    )
 
     cout = st.number_input(
-        "Coût €/t",
-        value=0.0
+        "Cout €/t"
     )
 
     submit = st.form_submit_button(
@@ -52,7 +111,7 @@ with st.form("ajout_mp"):
 
     if submit:
 
-        ajouter_mp((
+        ajouter_matiere_premiere([
             categorie,
             sous_categorie,
             mp,
@@ -72,19 +131,10 @@ with st.form("ajout_mp"):
             k,
             na,
             cout
-        ))
+        ])
 
         st.success(
             "Matière première ajoutée"
         )
 
-st.divider()
-
-st.subheader("Bibliothèque")
-
-df = lire_mp()
-
-st.dataframe(
-    df,
-    use_container_width=True
-)
+        st.rerun()
