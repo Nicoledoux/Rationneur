@@ -5,7 +5,7 @@ DATA_DIR = Path("data")
 
 FICHIER_REFERENCE = (
     DATA_DIR /
-    "Tableur_Rationnement_Formulation(10).xlsx"
+    "Tableur_Rationnement_Formulation.xlsx"
 )
 
 FICHIER_UTILISATEUR = (
