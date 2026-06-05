@@ -1,93 +1,117 @@
-import sqlite3
 import pandas as pd
+from pathlib import Path
 
-DB_NAME = "rationneur.db"
+DATA_DIR = Path("data")
 
+FICHIER_REFERENCE = (
+    DATA_DIR /
+    "Tableur_Rationnement_Formulation(10).xlsx"
+)
 
-def get_connection():
-    return sqlite3.connect(DB_NAME)
+FICHIER_UTILISATEUR = (
+    DATA_DIR /
+    "Bibliotheque_Utilisateur.xlsx"
+)
 
-
-def init_db():
-
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS matieres_premieres (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        categorie TEXT,
-        sous_categorie TEXT,
-        matiere_premiere TEXT UNIQUE,
-        ms REAL,
-        ufl REAL,
-        ufv REAL,
-        pdin REAL,
-        pdie REAL,
-        mat REAL,
-        amidon REAL,
-        sucres REAL,
-        ndf REAL,
-        adf REAL,
-        mg REAL,
-        ca REAL,
-        p REAL,
-        k REAL,
-        na REAL,
-        cout REAL
-    )
-    """)
-
-    conn.commit()
-    conn.close()
+COLONNES = [
+    "Catégorie",
+    "Sous-catégorie",
+    "Matière première",
+    "MS",
+    "UFL",
+    "UFV",
+    "PDIN",
+    "PDIE",
+    "MAT",
+    "Amidon",
+    "Sucres",
+    "NDF",
+    "ADF",
+    "MG",
+    "Ca",
+    "P",
+    "K",
+    "Na",
+    "Cout €/t"
+]
 
 
-def lire_mp():
+def charger_reference():
 
-    conn = get_connection()
-
-    df = pd.read_sql(
-        "SELECT * FROM matieres_premieres",
-        conn
+    df = pd.read_excel(
+        FICHIER_REFERENCE,
+        sheet_name="Bibliothèque MP INRA"
     )
 
-    conn.close()
+    mapping = {}
+
+    for col in df.columns:
+
+        col_clean = (
+            str(col)
+            .replace("%", "")
+            .replace("/kg MS", "")
+            .replace("(", "")
+            .replace(")", "")
+            .strip()
+        )
+
+        mapping[col] = col_clean
+
+    df = df.rename(columns=mapping)
 
     return df
 
 
-def ajouter_mp(data):
+def creer_bibliotheque_utilisateur():
 
-    conn = get_connection()
-    cur = conn.cursor()
+    if not FICHIER_UTILISATEUR.exists():
 
-    cur.execute("""
-    INSERT INTO matieres_premieres(
-        categorie,
-        sous_categorie,
-        matiere_premiere,
-        ms,
-        ufl,
-        ufv,
-        pdin,
-        pdie,
-        mat,
-        amidon,
-        sucres,
-        ndf,
-        adf,
-        mg,
-        ca,
-        p,
-        k,
-        na,
-        cout
+        pd.DataFrame(
+            columns=COLONNES
+        ).to_excel(
+            FICHIER_UTILISATEUR,
+            index=False
+        )
+
+
+def charger_utilisateur():
+
+    creer_bibliotheque_utilisateur()
+
+    return pd.read_excel(
+        FICHIER_UTILISATEUR
     )
-    VALUES(
-        ?,?,?,?,?,?,?,?,?,?,
-        ?,?,?,?,?,?,?,?,?
-    )
-    """, data)
 
-    conn.commit()
-    conn.close()
+
+def sauvegarder_utilisateur(df):
+
+    df.to_excel(
+        FICHIER_UTILISATEUR,
+        index=False
+    )
+
+
+def charger_bibliotheque_complete():
+
+    df_ref = charger_reference()
+
+    df_user = charger_utilisateur()
+
+    df_ref["Source"] = "INRAE"
+
+    df_user["Source"] = "Utilisateur"
+
+    return pd.concat(
+        [df_ref, df_user],
+        ignore_index=True
+    )
+
+
+def ajouter_matiere_premiere(data):
+
+    df = charger_utilisateur()
+
+    df.loc[len(df)] = data
+
+    sauvegarder_utilisateur(df)
