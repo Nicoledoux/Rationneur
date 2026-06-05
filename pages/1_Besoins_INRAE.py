@@ -44,6 +44,20 @@ with col2:
         max_value=9,
         value=0
     )
+    
+    temperature = st.number_input(
+    "Température moyenne (°C)",
+    min_value=-10,
+    max_value=50,
+    value=20
+    )
+
+    humidite = st.number_input(
+    "Humidité (%)",
+    min_value=0,
+    max_value=100,
+    value=60
+    )
 
 pv = poids_vif(race, nec)
 
