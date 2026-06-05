@@ -68,7 +68,27 @@ lait = production_lait(
     nec,
     gestation
 )
+# Estimation ingestion MS
+ingestion_ms = (
+    0.025 * pv
+    + 0.10 * lait
+)
 
+# Besoin en eau
+eau_base = (
+    4 * lait
+    + 4 * ingestion_ms
+)
+
+correction_temperature = max(
+    0,
+    (temperature - 20) * 2
+)
+
+eau_totale = (
+    eau_base
+    + correction_temperature
+)
 ufl = besoins_ufl(
     race,
     lactation,
