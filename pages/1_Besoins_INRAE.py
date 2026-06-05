@@ -58,7 +58,7 @@ with col2:
     max_value=100,
     value=60
     )
-
+    
 pv = poids_vif(race, nec)
 
 lait = production_lait(
@@ -68,13 +68,12 @@ lait = production_lait(
     nec,
     gestation
 )
-# Estimation ingestion MS
+
 ingestion_ms = (
     0.025 * pv
     + 0.10 * lait
 )
 
-# Besoin en eau
 eau_base = (
     4 * lait
     + 4 * ingestion_ms
@@ -89,6 +88,17 @@ eau_totale = (
     eau_base
     + correction_temperature
 )
+
+thi = (
+    (1.8 * temperature + 32)
+    -
+    (
+        (0.55 - 0.0055 * humidite)
+        *
+        ((1.8 * temperature + 32) - 58)
+    )
+)
+
 ufl = besoins_ufl(
     race,
     lactation,
